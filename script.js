@@ -1,4 +1,18 @@
 const gameContainer = document.getElementById("game");
+let card1 = null;
+let card2 = null;
+let cardsFlipped = 0;
+let noClicking = false;
+
+//timer
+var second = 0; minute = 0;
+const timer = document.querySelector(".timer");
+var interval;
+
+//moves
+let moves = 0;
+let counter = document.querySelector(".move");
+
 
 const COLORS = [
   "red",
@@ -10,7 +24,9 @@ const COLORS = [
   "blue",
   "green",
   "orange",
-  "purple"
+  "purple",
+  "pink",
+  "pink"
 ];
 
 // here is a helper function to shuffle an array
@@ -60,8 +76,70 @@ function createDivsForColors(colorArray) {
 // TODO: Implement this function!
 function handleCardClick(event) {
   // you can use event.target to see which element was clicked
-  console.log("you just clicked", event.target);
+  // console.log("you just clicked", event.target);
+  
+  //if the card is already flipped nothing will happen
+  if (noClicking) return;
+  if (event.target.classList.contains("flipped")) return;
+  // if card is not flipped, nothing will happen
+
+  //clicked card will show color
+  let clickedCard = event.target;
+  clickedCard.style.backgroundColor = clickedCard.classList[0];
+
+  //if it does not match
+  if (!card1 || !card2) {
+    clickedCard.classList.add("flipped");
+    card1 = card1 || clickedCard;
+    card2 = clickedCard === card1 ? null : clickedCard;
+  }
+
+  //if matched!
+  if (card1 && card2) {
+    noClicking = true;
+    // debugger
+    let gif1 = card1.className;
+    let gif2 = card2.className;
+
+    if (gif1 === gif2) {
+      cardsFlipped += 2;
+      card1.removeEventListener("click", handleCardClick);
+      card2.removeEventListener("click", handleCardClick);
+      card1 = null;
+      card2 = null;
+      noClicking = false;
+    } else {
+      setTimeout(function() {
+        card1.style.backgroundColor = "";
+        card2.style.backgroundColor = "";
+        card1.classList.remove("flipped");
+        card2.classList.remove("flipped");
+        card1 = null;
+        card2 = null;
+        noClicking = false;
+      }, 1000);
+    }
+  }
+
+  if (cardsFlipped === COLORS.length) alert("game over!");
 }
+
+//timer
+function startTimer(){
+  interval = setInterval(function(){
+      timer.innerHTML = minute+"mins "+second+"secs";
+      second++;
+      if(second == 60){
+          minute++;
+          second=0;
+      }
+      if(minute == 60){
+          hour++;
+          minute = 0;
+      }
+  },1000);
+}
+
 
 // when the DOM loads
 createDivsForColors(shuffledColors);
